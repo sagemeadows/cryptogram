@@ -1,2 +1,2 @@
 # cryptogram
-Creating and decoding cryptogram puzzles
+Creating and decoding cryptogram puzzles.
