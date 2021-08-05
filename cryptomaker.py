@@ -8,6 +8,7 @@
 #
 
 import sys
+import string
 import random
 import numpy as np
 
@@ -39,3 +40,11 @@ def shuffle(key_array):
 
 shuffle(foo)
 print(foo)
+
+def arrange(message):
+    message.remove("cryptomaker.py")
+    message = " ".join(message)
+    message = message.upper()
+    print(message)
+
+arrange(sys.argv)
