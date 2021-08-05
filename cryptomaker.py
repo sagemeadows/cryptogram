@@ -12,17 +12,13 @@ import string
 import random
 import numpy as np
 
-# print the arguments that were passed in via CLI
-arg_index = 0
-for arg in sys.argv:
-    print("arg[{}] = '{}'".format(arg_index, arg))
-    arg_index += 1
-
+#cryptogram pre-key
 foo = np.array([['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', \
                  'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
                 ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', \
                  'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']])
 
+#create cryptogram key
 def shuffle(key_array):
     state = ""
     random.shuffle(key_array[1])
@@ -36,15 +32,32 @@ def shuffle(key_array):
         random.shuffle(key_array[1])
         shuffle(key_array)
     else:
-        print("Cryptogram code is ready!")
+        print("\nYour cryptogram code is:")
+        key = "  ".join(foo[0])
+        value = "  ".join(foo[1])
+        print(key)
+        print(value)
 
-shuffle(foo)
-print(foo)
-
+#prepare message
 def arrange(message):
     message.remove("cryptomaker.py")
     message = " ".join(message)
-    message = message.upper()
-    print(message)
+    swap(message)
 
+#encode message
+def swap(message):
+    print("\nYour original message was:\n" + message)
+    key = "abcdefghijklmnopqrstuvwxyz"
+    value = "".join(foo[1])
+    message = message.lower()
+    for c in message:
+        for i in range(len(key)):
+            if c.upper() == foo[0][i]:
+                message = message.replace(c, value[i])
+                break
+    print("\nYour new message is:\n" + message)
+    print("\nFinished!")
+
+#run program
+shuffle(foo)
 arrange(sys.argv)
