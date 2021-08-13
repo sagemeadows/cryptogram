@@ -173,7 +173,7 @@ for word in unique_scrambled_words:
             # only non-empty solutions are allowed
             solutions[word].append(solution)
 
-# now that we all possible partial solutions...
+# now that we have all possible partial solutions...
 # join each one to all the others and discard conflicts
 # (e.g. solutions which try to map same key to different value or visa-versa)
 i = 0
