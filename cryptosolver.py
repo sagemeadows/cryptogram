@@ -3,7 +3,7 @@
 # cryptosolver.py
 #
 # Usage:
-#     cryptos.py [options] [fztbrk ... ]
+#     cryptos.py [word... ]
 #
 # Given a cryptogram sentence: scans the default "words" file for possible solutions.
 #
@@ -89,8 +89,8 @@ def join_solutions(solution_A, solution_B):
 
 
 def apply_solution(solution, scramble):
-    # given a solution (dictionary of (char,char) pairs): replace characters in 'scramble'
-    # to produce the 'word'
+    # given a solution (dictionary of (char --> char) pairs):
+    # replace characters in 'scramble' to produce the 'word'
     word = ""
     for i in range(len(scramble)):
         if scramble[i] in solution:
@@ -161,7 +161,7 @@ file_handle.close()
 
 
 # for each (word, candidate) pair: generate the partial solution
-# which is a dictionary of (key,value) pairs (char,char)
+# which is a dictionary of (key,value) pairs (char --> char)
 solutions = {}
 for word in unique_scrambled_words:
     # insert an empty list into the dictionary
