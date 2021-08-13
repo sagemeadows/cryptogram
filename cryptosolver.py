@@ -8,7 +8,6 @@
 # Given a cryptogram sentence: scans the default "words" file for possible solutions.
 #
 
-#import argparse
 import collections
 import sys
 
@@ -17,17 +16,17 @@ def compute_fingerprint(word):
     # where each character is assigned a letter of the alphabet representing its sequence
     # of "first occurrence".
     #
-    # For example: consider the word 'fallow'
+    # For example: consider the word 'FALLOW'
     #
-    # f shows up first and is assigned A
-    # a shows up second and is assigned B
-    # l shows up third and is assigned C
-    # ... and so on
+    # 'F' shows up first and is assigned 'A'
+    # 'A' shows up second and is assigned 'B'
+    # 'L' shows up third and is assigned 'C'
+    # ... and so on D, E, F...
     #
     # Its fingerprint would be 'ABCCDE'
     #
-    # The word 'fellow' would have the same fingerprint 'ABCCDE'
-    # however 'follow' would be different: 'ABCCBD'
+    # The word 'FELLOW' would have the same fingerprint 'ABCCDE'
+    # however 'FOLLOW' would be different: 'ABCCBD'
     # 
     char_map = {}
     fingerprint = ""
@@ -71,7 +70,7 @@ def join_solutions(solution_A, solution_B):
     items_A = solution_A.items()
     for key_B, value_B in solution_B.items():
         if key_B in solution_A and value_B != solution_A[key_B]:
-            # conflicting mapping
+            # same key but conflicting values
             combined_solution = {}
             break;
         else:
@@ -79,7 +78,7 @@ def join_solutions(solution_A, solution_B):
             combined_solution[key_B] = value_B
             for key_A, value_A in items_A:
                 if value_B == value_A and key_B != key_A:
-                    # double-mapping
+                    # same values but conflicting keys
                     solution_is_valid = False
                     break;
             if not solution_is_valid:
@@ -89,7 +88,7 @@ def join_solutions(solution_A, solution_B):
 
 
 def apply_solution(solution, scramble):
-    # given a solution (dictionary of (char --> char) pairs):
+    # given a solution (dictionary of (char --> char) pairs) and a scrambled word:
     # replace characters in 'scramble' to produce the 'word'
     word = ""
     for i in range(len(scramble)):
@@ -99,17 +98,17 @@ def apply_solution(solution, scramble):
             word += scramble[i]
     return word
 
-    
 
 # extract the scrambled words from the command-line arguments
 scrambled_words = sys.argv[1:]
 
-# build a list of unique scrambled words (eliminate duplicates)
-# and also a list of unique: fingerprints
-# and lengths (for faster candidate filtering)
+# build lists of:
+# unique scrambled words (eliminate duplicates)
+# unique: fingerprints
+# word lengths (for faster candidate filtering)
+unique_scrambled_words = []
 fingerprints = []
 lengths = []
-unique_scrambled_words = []
 for word in scrambled_words:
     WORD = word.upper()
     if WORD not in unique_scrambled_words:
@@ -122,11 +121,11 @@ for word in scrambled_words:
             lengths.append(word_length)
 
 # open the default list of words for reading
-WORDS = "/etc/dictionaries-common/words"
+words_filename = "/etc/dictionaries-common/words"
 try:
-    file_handle = open(WORDS, 'r')
+    file_handle = open(words_filename, 'r')
 except:
-    print("failed to open WORDS file '{}'".format(WORDS))
+    print("failed to open words file '{}'".format(words_filename))
     sys.exit(1)
 
 # create a dictionary:
@@ -137,7 +136,7 @@ for fingerprint in fingerprints:
     # create an empty array for each fingerprint
     candidates_by_fingerprint[fingerprint] = []
 
-# read each line in WORDS file and sort each candidate
+# read each line in words file and sort each candidate
 # by fingerprint into its respective array
 num_lines = 0
 while True:
@@ -189,19 +188,18 @@ for i in range(1, len(unique_scrambled_words)):
                 new_solutions.append(new_solution)
     final_solutions = new_solutions
 
-# time to print the results
+# print the results
 scrambled_sentence = " ".join(scrambled_words).upper()
 for solution in final_solutions:
     # sort the solution's keys alphabetically
     sorted_solution = collections.OrderedDict(sorted(solution.items()))
 
-    # print the solution in two lines
+    # print the solution
     print(" ".join(sorted_solution.keys()))
     print(" ".join(sorted_solution.values()))
 
-    # print the scrambled intput and the solved output in two lines
+    # print the scrambled intput and the solved output
     sentence = apply_solution(solution, scrambled_sentence)
     print("  {}".format(scrambled_sentence))
     print("  {}\n".format(sentence))
-
 
