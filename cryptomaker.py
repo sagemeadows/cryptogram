@@ -31,7 +31,7 @@ def shuffle(key_dict):
         random.shuffle(key_dict["value"])
         shuffle(key_dict)
     else:
-        print("Your cryptogram code is:")
+        print("\nYour cryptogram code is:")
         key = "  ".join(key_dict["key"])
         value = "  ".join(key_dict["value"])
         print(key)

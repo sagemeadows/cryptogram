@@ -15,6 +15,7 @@ When you run `cryptomaker.py`, it will return a code, your original message, and
 
 ```
 user@computer:~/directory$ python cryptomaker.py The quick red fox jumps over the lazy brown dog.
+
 Your cryptogram code is:
 A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
 N  H  X  Q  I  Z  O  G  P  L  U  V  D  T  Y  W  K  S  C  J  A  M  F  E  R  B
