@@ -13,8 +13,8 @@ import sys
 
 def compute_fingerprint(word):
     # Given a 'word': compute a canonical "fingerprint" of the characters within
-    # where each character is assigned a letter of the alphabet representing its sequence
-    # of "first occurrence".
+    # where each character is assigned a letter of the alphabet representing its
+    # sequence of "first occurrence".
     #
     # For example: consider the word 'FALLOW'
     #
@@ -28,30 +28,29 @@ def compute_fingerprint(word):
     # The word 'FELLOW' would have the same fingerprint 'ABCCDE'
     # however 'FOLLOW' would be different: 'ABCCBD'
     # 
-    char_map = {}
-    fingerprint = ""
-    i = 0
-    WORD = word.upper()
-    for char in WORD:
+    assignments = {}
+    fp = ""
+    char_index = 0
+    for char in word.upper():
         if (char >= 'A' and char <= 'Z'):
-            if char in char_map:
-                fingerprint += char_map[char]
+            if char in assignments:
+                fp += assignments[char]
             else:
-                letter = chr(ord('A') + i)
-                char_map[char] = letter
-                fingerprint += letter
-                i += 1
+                letter = chr(ord('A') + char_index)
+                assignments[char] = letter
+                fp += letter
+                char_index += 1
         else:
-            fingerprint += char
-    return fingerprint
+            fp += char
+    return fp
 
 
-def compute_partial_solution(scrambled_word, word):
+def compute_partial_solution(scramble, word):
     # given two arguments of equal length and same fingerprint:
-    # return a partial solution dictionary that would convert scrambled_word to word
+    # return a partial solution dictionary that would convert scramble to word
     solution = {}
-    for i in range(0, len(scrambled_word)):
-        a = scrambled_word[i]
+    for i in range(0, len(scramble)):
+        a = scramble[i]
         b = word[i]
         if a == b:
             # characters that map to themselves invalidate the solution
@@ -62,57 +61,58 @@ def compute_partial_solution(scrambled_word, word):
     return solution
 
 
-def join_solutions(solution_A, solution_B):
-    # given two mappings: {a:b, c:d, ...} and {...x:y, y:z} join the two maps
+def join_solutions(A, B):
+    # given two solutions: A = {a:b, c:d, ...} and B = {...x:y, y:z}
+    # join the two dictionaries
     # if there is a conflict: return empty dictionary
-    # else: return the join
-    combined_solution = solution_A
-    items_A = solution_A.items()
-    for key_B, value_B in solution_B.items():
-        if key_B in solution_A and value_B != solution_A[key_B]:
+    # else: return the join: C = A union B
+    C = A
+    items_A = A.items()
+    for key_B, value_B in B.items():
+        if key_B in A and value_B != A[key_B]:
             # same key but conflicting values
-            combined_solution = {}
-            break;
+            C = {}
+            break
         else:
             solution_is_valid = True
-            combined_solution[key_B] = value_B
+            C[key_B] = value_B
             for key_A, value_A in items_A:
                 if value_B == value_A and key_B != key_A:
-                    # same values but conflicting keys
+                    # same value but conflicting keys
                     solution_is_valid = False
-                    break;
+                    break
             if not solution_is_valid:
-                combined_solution = {}
-                break;
-    return combined_solution
+                C = {}
+                break
+    return C
 
 
 def apply_solution(solution, scramble):
-    # given a solution (dictionary of (char --> char) pairs) and a scrambled word:
+    # given a solution and a scrambled word:
     # replace characters in 'scramble' to produce the 'word'
     word = ""
     for i in range(len(scramble)):
-        if scramble[i] in solution:
-            word += solution[scramble[i]]
+        char = scramble[i]
+        if char in solution:
+            word += solution[char]
         else:
-            word += scramble[i]
+            word += char
     return word
-
 
 # extract the scrambled words from the command-line arguments
 scrambled_words = sys.argv[1:]
 
-# build lists of:
-# unique scrambled words (eliminate duplicates)
-# unique: fingerprints
-# word lengths (for faster candidate filtering)
-unique_scrambled_words = []
+# build lists of unique:
+#   scrambled words
+#   fingerprints
+#   word lengths (for faster candidate filtering)
+unique_scrambled_WORDS = []
 fingerprints = []
 lengths = []
 for word in scrambled_words:
     WORD = word.upper()
-    if WORD not in unique_scrambled_words:
-        unique_scrambled_words.append(WORD)
+    if WORD not in unique_scrambled_WORDS:
+        unique_scrambled_WORDS.append(WORD)
         fingerprint = compute_fingerprint(word)
         if fingerprint not in fingerprints:
             fingerprints.append(fingerprint)
@@ -141,28 +141,29 @@ for fingerprint in fingerprints:
 num_lines = 0
 while True:
     num_lines += 1
-    line = file_handle.readline().upper()
-    if not line:
+    LINE = file_handle.readline().upper()
+    if not LINE:
         # at end of file
         break
-    # split the line just in case a it has multiple words
-    words = line.split()
-    for word in words:
+    # split the LINE just in case a it has multiple words
+    WORDS = LINE.split()
+    for WORD in WORDS:
         # skip words whose lengths don't match
-        if len(word) in lengths:
-            # skip words whose fingerprints don't match
-            fingerprint = compute_fingerprint(word)
+        if len(WORD) in lengths:
+            # only keep WORDs with matching fingerprints
+            fingerprint = compute_fingerprint(WORD)
             if fingerprint in fingerprints:
-                # avoid duplicate entries in the array
-                if word not in candidates_by_fingerprint[fingerprint]:
-                    candidates_by_fingerprint[fingerprint].append(word)
+                # avoid duplicate WORDs
+                if WORD not in candidates_by_fingerprint[fingerprint]:
+                    candidates_by_fingerprint[fingerprint].append(WORD)
 file_handle.close()
 
 
 # for each (word, candidate) pair: generate the partial solution
-# which is a dictionary of (key,value) pairs (char --> char)
+# which is a dictionary of (key,value) pairs (e.g. char --> char)
 solutions = {}
-for word in unique_scrambled_words:
+
+for word in unique_scrambled_WORDS:
     # insert an empty list into the dictionary
     solutions[word] = []
     fingerprint = compute_fingerprint(word)
@@ -176,14 +177,18 @@ for word in unique_scrambled_words:
 # now that we have all possible partial solutions...
 # join each one to all the others and discard conflicts
 # (e.g. solutions which try to map same key to different value or visa-versa)
-i = 0
-final_solutions = solutions[unique_scrambled_words[i]]
-for i in range(1, len(unique_scrambled_words)):
-    key = unique_scrambled_words[i]
+final_solutions = solutions[unique_scrambled_WORDS[0]]
+
+for i in range(1, len(unique_scrambled_WORDS)):
+    key = unique_scrambled_WORDS[i]
     new_solutions = []
-    for solution in solutions[key]:
-        for joined_solution in final_solutions:
-            new_solution = join_solutions(solution, joined_solution)
+    #for solution in solutions[key]:
+    for j in range(len(solutions[key])):
+        solution = solutions[key][j]
+        #for joined_solution in final_solutions:
+        for k in range(len(final_solutions)):
+            joined_solution = final_solutions[k]
+            new_solution = join_solutions(joined_solution, solution)
             if len(new_solution) > 0:
                 new_solutions.append(new_solution)
     final_solutions = new_solutions
@@ -200,6 +205,7 @@ for solution in final_solutions:
 
     # print the scrambled intput and the solved output
     sentence = apply_solution(solution, scrambled_sentence)
-    print("  {}".format(scrambled_sentence))
-    print("  {}\n".format(sentence))
+    print(" {}".format(scrambled_sentence))
+    print(" {}".format(sentence))
+    print("")
 
