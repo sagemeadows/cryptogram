@@ -9,6 +9,7 @@
 #
 
 import collections
+import optparse
 import sys
 
 def compute_fingerprint(word):
@@ -66,7 +67,7 @@ def join_solutions(A, B):
     # join the two dictionaries
     # if there is a conflict: return empty dictionary
     # else: return the join: C = A union B
-    C = A
+    C = A.copy()
     items_A = A.items()
     for key_B, value_B in B.items():
         if key_B in A and value_B != A[key_B]:
@@ -99,31 +100,45 @@ def apply_solution(solution, A):
             B += char
     return B
 
+## A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
+## X  W  M  N  B  P  S  O  E  L  U  H  T  A  Y  G  J  Q  Z  R  F  I  K  V  D  C
+#solved_sentence = "this sentence is sentient but not sentimental".upper()
+#scrambled_sentence = "ROEZ ZBARBAMB EZ ZBAREBAR WFR AYR ZBARETBARXH"
+#solved_words = solved_sentence.split()
+#scrambled_words = scrambled_sentence.split()
+
+parser = optparse.OptionParser()
+parser.add_option("-c", "--constrain", dest="solution_constraint",
+                  help="constrain solution using partial map AB,CD,EF (A-->B, C-->D, E-->F)", metavar="AB,CD,EF")
+(options, args) = parser.parse_args()
+
 # extract the scrambled words from the command-line arguments
-scrambled_words = sys.argv[1:]
+scrambled_words = args
+
+constraint = {}
+if options.solution_constraint:
+    pairs = options.solution_constraint.upper().split(",")
+    for pair in pairs:
+        if len(pair) == 2:
+            constraint[pair[0]] = pair[1]
 
 
 # build lists of unique:
 #   scrambled words
 #   fingerprints
 #   word lengths (for faster candidate filtering)
-unique_scrambled_WORDS = []
+unique_scrambled_words = []
 fingerprints = []
 lengths = []
 for word in scrambled_words:
-    WORD = word.upper()
-    if WORD not in unique_scrambled_WORDS:
-        unique_scrambled_WORDS.append(WORD)
+    if word not in unique_scrambled_words:
+        unique_scrambled_words.append(word)
         fingerprint = compute_fingerprint(word)
         if fingerprint not in fingerprints:
             fingerprints.append(fingerprint)
         word_length = len(word)
         if word_length not in lengths:
             lengths.append(word_length)
-
-print("debug scrambles    = {}".format(scrambled_words))
-print("debug fingerprints = {}".format(fingerprints))
-print("debug lengths = {}".format(lengths))
 
 # open the default list of words for reading
 words_filename = "/etc/dictionaries-common/words"
@@ -146,38 +161,34 @@ for fingerprint in fingerprints:
 num_lines = 0
 while True:
     num_lines += 1
-    LINE = file_handle.readline().upper()
-    if not LINE:
+    line = file_handle.readline().upper()
+    if not line:
         # at end of file
         break
-    # split the LINE just in case a it has multiple words
-    WORDS = LINE.split()
-    for WORD in WORDS:
+    # split the line just in case a it has multiple words
+    words = line.split()
+    for word in words:
         # skip words whose lengths don't match
-        if len(WORD) in lengths:
-            # only keep WORDs with matching fingerprints
-            fingerprint = compute_fingerprint(WORD)
+        if len(word) in lengths:
+            # only keep wordS with matching fingerprints
+            fingerprint = compute_fingerprint(word)
             if fingerprint in fingerprints:
-                # avoid duplicate WORDs
-                if WORD not in candidates_by_fingerprint[fingerprint]:
-                    candidates_by_fingerprint[fingerprint].append(WORD)
+                # avoid duplicate wordS
+                if word not in candidates_by_fingerprint[fingerprint]:
+                    candidates_by_fingerprint[fingerprint].append(word)
 file_handle.close()
-
-for fingerprint in fingerprints:
-    print("{} has {} candidates".format(fingerprint, len(candidates_by_fingerprint[fingerprint])))
 
 
 # for each (word, candidate) pair: generate the partial solution
 # which is a dictionary of (key,value) pairs (e.g. char --> char)
 solutions = {}
-names = {}
 
-for word in unique_scrambled_WORDS:
+for word in unique_scrambled_words:
     # insert an empty list into the dictionary
     solutions[word] = []
-    names[word] = []
     fingerprint = compute_fingerprint(word)
     candidates = candidates_by_fingerprint[fingerprint]
+
     for candidate in candidates:
         solution = compute_partial_solution(word, candidate)
         if len(solution) > 0:
@@ -187,12 +198,25 @@ for word in unique_scrambled_WORDS:
 # now that we have all possible partial solutions...
 # join each one to all the others and discard conflicts
 # (e.g. solutions which try to map same key to different value or visa-versa)
-final_solutions = solutions[unique_scrambled_WORDS[0]]
+#
+# The beginning value of final_solutions is an array of possible solutions.
+# If we have a constraint then we add that
+# else we use the possibilities for the first scrambled word
+first_i = 0
+if constraint:
+    final_solutions = [constraint]
+else:
+    final_solutions = solutions[unique_scrambled_words[0]]
+    first_i = 1
 
-for i in range(1, len(unique_scrambled_WORDS)):
-    key = unique_scrambled_WORDS[i]
+# TODO: to speed up the combination loop below
+# sort the solutions array by number of possibilities
+# and start with the most constrained sets
+
+for i in range(first_i, len(unique_scrambled_words)):
+    key = unique_scrambled_words[i]
     new_solutions = []
-    #for solution in solutions[key]:
+
     for j in range(len(solutions[key])):
         solution = solutions[key][j]
         #for joined_solution in final_solutions:
@@ -201,21 +225,55 @@ for i in range(1, len(unique_scrambled_WORDS)):
             new_solution = join_solutions(joined_solution, solution)
             if len(new_solution) > 0:
                 new_solutions.append(new_solution)
+
     final_solutions = new_solutions
 
-# print the results
+if len(final_solutions) == 0:
+    print("could not find solution")
+
 scrambled_sentence = " ".join(scrambled_words).upper()
-for solution in final_solutions:
-    # sort the solution's keys alphabetically
-    sorted_solution = collections.OrderedDict(sorted(solution.items()))
 
-    # print the solution
-    print(" ".join(sorted_solution.keys()))
-    print(" ".join(sorted_solution.values()))
+## print ALL possible solutions
+#for solution in final_solutions:
+#    # sort the solution's keys alphabetically
+#    sorted_solution = collections.OrderedDict(sorted(solution.items()))
+#
+#    # print the solution
+#    print(" ".join(sorted_solution.keys()))
+#    print(" ".join(sorted_solution.values()))
+#
+#    # print the scrambled input and the solved output
+#    sentence = apply_solution(solution, scrambled_sentence)
+#    print(" {}".format(scrambled_sentence))
+#    print(" {}".format(sentence))
+#    print("")
 
-    # print the scrambled intput and the solved output
-    sentence = apply_solution(solution, scrambled_sentence)
-    print(" {}".format(scrambled_sentence))
-    print(" {}".format(sentence))
-    print("")
+# compute the reduced final_solution
+# e.g. the "intersection" of all possible solutions
+final_solution = final_solutions[0]
+if len(final_solutions) > 0:
+    unsolved_keys = []
+    for solution in final_solutions[1:]:
+        keys_to_remove = []
+        for key, value in final_solution.items():
+            if solution[key] != value:
+                keys_to_remove.append(key)
+        for key in keys_to_remove:
+            del final_solution[key]
+            if key not in unsolved_keys:
+                unsolved_keys.append(key)
 
+    # fill unsolved values with underline
+    for key in unsolved_keys:
+        final_solution[key] = '_'
+
+# print the reduced final_solution
+sorted_solution = collections.OrderedDict(sorted(final_solution.items()))
+print(" ".join(sorted_solution.keys()))
+print(" ".join(sorted_solution.values()))
+
+# print the scrambled input and the solved output
+sentence = apply_solution(final_solution, scrambled_sentence)
+print(" {}".format(scrambled_sentence))
+print(" {}".format(sentence))
+print("")
