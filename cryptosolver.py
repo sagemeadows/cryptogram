@@ -100,28 +100,36 @@ def apply_solution(solution, A):
             B += char
     return B
 
-## A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
-## X  W  M  N  B  P  S  O  E  L  U  H  T  A  Y  G  J  Q  Z  R  F  I  K  V  D  C
-#solved_sentence = "this sentence is sentient but not sentimental".upper()
-#scrambled_sentence = "ROEZ ZBARBAMB EZ ZBAREBAR WFR AYR ZBARETBARXH"
-#solved_words = solved_sentence.split()
-#scrambled_words = scrambled_sentence.split()
 
+def parse_constraint_input(constraint_string):
+    # give a constraint string of comma-separated KeyValue characters: "AB,CD,EF"
+    # generate a partial solution dictionary: { A:B, C:D, E:F }
+    solution = {}
+    pairs = constraint_string.upper().split(",")
+    known_keys = []
+    for pair in pairs:
+        if len(pair) == 2:
+            key = pair[0]
+            value = pair[1]
+            if key not in known_keys:
+                solution[key] = value
+                known_keys.append(key)
+    return solution
+
+
+# parse the options
 parser = optparse.OptionParser()
-parser.add_option("-c", "--constrain", dest="solution_constraint",
-                  help="constrain solution using partial map AB,CD,EF (A-->B, C-->D, E-->F)", metavar="AB,CD,EF")
+parser.add_option("-c", "--constraint", dest="solution_constraint",
+        help="specify a partial solution with comma separated pairs: AB,CD,EF,... (A-->B, C-->D, E-->F, ...)", metavar="AB,CD,EF,...")
 (options, args) = parser.parse_args()
+
+# compute the constraint (if any)
+constraint = {}
+if options.solution_constraint:
+    constraint = parse_constraint_input(options.solution_constraint)
 
 # extract the scrambled words from the command-line arguments
 scrambled_words = args
-
-constraint = {}
-if options.solution_constraint:
-    pairs = options.solution_constraint.upper().split(",")
-    for pair in pairs:
-        if len(pair) == 2:
-            constraint[pair[0]] = pair[1]
-
 
 # build lists of unique:
 #   scrambled words
@@ -149,14 +157,14 @@ except:
     sys.exit(1)
 
 # create a dictionary:
-#   key = fingerrpint
-#   value = empty array for candidates
+#   key = fingerprint
+#   value = empty array for candidate words
 candidates_by_fingerprint = {}
 for fingerprint in fingerprints:
     # create an empty array for each fingerprint
     candidates_by_fingerprint[fingerprint] = []
 
-# read each line in words file and sort each candidate
+# read each line in words file and sort each candidate word
 # by fingerprint into its respective array
 num_lines = 0
 while True:
@@ -179,7 +187,7 @@ while True:
 file_handle.close()
 
 
-# for each (word, candidate) pair: generate the partial solution
+# for each (scramble, candidate) pair: generate the partial solution
 # which is a dictionary of (key,value) pairs (e.g. char --> char)
 solutions = {}
 
@@ -201,17 +209,18 @@ for word in unique_scrambled_words:
 #
 # The beginning value of final_solutions is an array of possible solutions.
 # If we have a constraint then we add that
-# else we use the possibilities for the first scrambled word
+# else we add all possibilities for the first scrambled word
+#
+# TODO: to speed up the solution search we should first
+# sort the solutions array by number of possibilities
+# and start with the most constrained sets
+#
 first_i = 0
 if constraint:
     final_solutions = [constraint]
 else:
     final_solutions = solutions[unique_scrambled_words[0]]
     first_i = 1
-
-# TODO: to speed up the combination loop below
-# sort the solutions array by number of possibilities
-# and start with the most constrained sets
 
 for i in range(first_i, len(unique_scrambled_words)):
     key = unique_scrambled_words[i]
@@ -230,6 +239,7 @@ for i in range(first_i, len(unique_scrambled_words)):
 
 if len(final_solutions) == 0:
     print("could not find solution")
+    sys.exit()
 
 scrambled_sentence = " ".join(scrambled_words).upper()
 
