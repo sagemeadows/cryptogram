@@ -45,13 +45,13 @@ def compute_fingerprint(word):
     return fp
 
 
-def compute_partial_solution(scramble, word):
+def compute_partial_solution(A, B):
     # given two arguments of equal length and same fingerprint:
-    # return a partial solution dictionary that would convert scramble to word
+    # return a partial solution dictionary that would convert A to B
     solution = {}
-    for i in range(0, len(scramble)):
-        a = scramble[i]
-        b = word[i]
+    for i in range(0, len(A)):
+        a = A[i]
+        b = B[i]
         if a == b:
             # characters that map to themselves invalidate the solution
             # so we return an empty dictionary
@@ -87,20 +87,21 @@ def join_solutions(A, B):
     return C
 
 
-def apply_solution(solution, scramble):
-    # given a solution and a scrambled word:
-    # replace characters in 'scramble' to produce the 'word'
-    word = ""
-    for i in range(len(scramble)):
-        char = scramble[i]
+def apply_solution(solution, A):
+    # given a solution and a scrambled word 'A':
+    # replace characters in 'A' to produce solved word 'B'
+    B = ""
+    for i in range(len(A)):
+        char = A[i]
         if char in solution:
-            word += solution[char]
+            B += solution[char]
         else:
-            word += char
-    return word
+            B += char
+    return B
 
 # extract the scrambled words from the command-line arguments
 scrambled_words = sys.argv[1:]
+
 
 # build lists of unique:
 #   scrambled words
@@ -119,6 +120,10 @@ for word in scrambled_words:
         word_length = len(word)
         if word_length not in lengths:
             lengths.append(word_length)
+
+print("debug scrambles    = {}".format(scrambled_words))
+print("debug fingerprints = {}".format(fingerprints))
+print("debug lengths = {}".format(lengths))
 
 # open the default list of words for reading
 words_filename = "/etc/dictionaries-common/words"
@@ -158,14 +163,19 @@ while True:
                     candidates_by_fingerprint[fingerprint].append(WORD)
 file_handle.close()
 
+for fingerprint in fingerprints:
+    print("{} has {} candidates".format(fingerprint, len(candidates_by_fingerprint[fingerprint])))
+
 
 # for each (word, candidate) pair: generate the partial solution
 # which is a dictionary of (key,value) pairs (e.g. char --> char)
 solutions = {}
+names = {}
 
 for word in unique_scrambled_WORDS:
     # insert an empty list into the dictionary
     solutions[word] = []
+    names[word] = []
     fingerprint = compute_fingerprint(word)
     candidates = candidates_by_fingerprint[fingerprint]
     for candidate in candidates:
