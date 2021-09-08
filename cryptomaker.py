@@ -23,7 +23,7 @@ def shuffle(key_dict):
     random.shuffle(key_dict["value"])
     for i in range(len(key_dict["key"])):
         if key_dict["key"][i] != key_dict["value"][i]:
-            state = "good"
+            break
         else:
             state = "bad"
             break
@@ -37,14 +37,10 @@ def shuffle(key_dict):
         print(key)
         print(value)
 
-#prepare message
-def arrange(message):
-    message.remove("cryptomaker.py")
-    message = " ".join(message)
-    swap(message)
 
 #encode message
 def swap(message):
+    message = " ".join(message[1:])
     print("\nYour original message was:\n" + message)
     key = "abcdefghijklmnopqrstuvwxyz"
     value = "".join(code["value"])
@@ -55,8 +51,8 @@ def swap(message):
                 message = message.replace(c, value[i])
                 break
     print("\nYour new message is:\n" + message)
-    print("\nFinished!")
+    print("\nFinished!\n")
 
-#run program
+#run script
 shuffle(code)
-arrange(sys.argv)
+swap(sys.argv)
