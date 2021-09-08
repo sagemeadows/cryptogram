@@ -8,7 +8,7 @@ Cryptograms are usually fairly long—at least one sentence, often more—so the
 1. Download `cryptomaker.py`
 2. Go to your command line
 3. Change directories to wherever you put the downloaded file
-4. Run program with `python cryptomaker.py [message to encode]`
+4. Run program with `python3 cryptomaker.py [message to encode]`
 5. Copy and paste the output to wherever you want it
 
 When you run `cryptomaker.py`, it will return a code, your original message, and the encoded message.
@@ -34,9 +34,9 @@ Finished!
 2. Go to your command line
 3. Change directories to wherever you put the downloaded file
 4. Run program...
-    - If no letter mappings are known: `python cryptomaker.py [cryptogram to decode]`
-    - If one letter mapping is known, e.g. A-->B: `python cryptomaker.py -c AB [cryptogram to decode]`
-    - If two or more letter mappings are known, e.g. A-->B and C-->D: `python cryptomaker.py -c AB,CD [cryptogram to decode]`
+    - If no letter mappings are known: `python3 cryptomaker.py [cryptogram to decode]`
+    - If one letter mapping is known, e.g. A-->B: `python3 cryptomaker.py -c AB [cryptogram to decode]`
+    - If two or more letter mappings are known, e.g. A-->B and C-->D: `python3 cryptomaker.py -c AB,CD [cryptogram to decode]`
 
 **WARNING! Cryptograms with many possible solutions will take a long time to complete and may slow down your computer.**
 
