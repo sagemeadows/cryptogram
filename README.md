@@ -14,7 +14,7 @@ Cryptograms are usually fairly long—at least one sentence, often more—so the
 When you run `cryptomaker.py`, it will return a code, your original message, and the encoded message.
 
 ```
-$ python cryptomaker.py The quick red fox jumps over the lazy brown dog.
+$ python3 cryptomaker.py The quick red fox jumps over the lazy brown dog.
 
 Your cryptogram code is:
 A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
@@ -58,7 +58,7 @@ Before running `cryptosolver.py`, remove all punctuation except for `'`.
 When you run `cryptosolver.py`, it will return the scrambled letters in the message mapped to their unscrambled counterparts. If there are multiple solutions for a letter, it will return _ for that letter.
 
 ```
-$ python cryptosolver.py RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+$ python3 cryptosolver.py RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
 A C D E J L Q R T V W X Y
 X A H S M C _ T L _ I E N
  RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
@@ -68,7 +68,7 @@ X A H S M C _ T L _ I E N
 Here is an example with hints provided.
 
 ```
-$ python cryptosolver.py -c QD,VO RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+$ python3 cryptosolver.py -c QD,VO RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
 A C D E J L Q R T V W X Y
 X A H S M C D T L O I E N
  RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
