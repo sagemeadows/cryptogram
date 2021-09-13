@@ -117,8 +117,6 @@ def parse_constraint_input(constraint_string):
                 known_keys.append(key)
     return solution
 
-# start timer
-start = time.time()
 
 # parse the options
 parser = optparse.OptionParser()
@@ -130,6 +128,9 @@ parser.add_option("-c", "--constraint", dest="solution_constraint",
 constraint = {}
 if options.solution_constraint:
     constraint = parse_constraint_input(options.solution_constraint)
+
+# start timer
+start = time.time()
 
 # extract the scrambled words from the command-line arguments
 scrambled_words = args

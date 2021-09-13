@@ -80,5 +80,5 @@ X A H S M C D T L O I E N
  RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
  THIS SENTENCE IS EXISTENTIAL AND NOT SENTIMENTAL
 
- This solution took 0.19 seconds.
+This solution took 0.19 seconds.
 ```
