@@ -11,6 +11,7 @@
 import collections
 import optparse
 import sys
+import time
 
 def compute_fingerprint(word):
     # Given a 'word': compute a canonical "fingerprint" of the characters within
@@ -28,7 +29,7 @@ def compute_fingerprint(word):
     #
     # The word 'FELLOW' would have the same fingerprint 'ABCCDE'
     # however 'FOLLOW' would be different: 'ABCCBD'
-    # 
+    #
     assignments = {}
     fp = ""
     char_index = 0
@@ -116,6 +117,8 @@ def parse_constraint_input(constraint_string):
                 known_keys.append(key)
     return solution
 
+# start timer
+start = time.time()
 
 # parse the options
 parser = optparse.OptionParser()
@@ -278,12 +281,25 @@ if len(final_solutions) > 0:
         final_solution[key] = '_'
 
 # print the reduced final_solution
+print("")
 sorted_solution = collections.OrderedDict(sorted(final_solution.items()))
 print(" ".join(sorted_solution.keys()))
 print(" ".join(sorted_solution.values()))
 
 # print the scrambled input and the solved output
+print("")
 sentence = apply_solution(final_solution, scrambled_sentence)
 print(" {}".format(scrambled_sentence))
 print(" {}".format(sentence))
 print("")
+
+# end timer
+end = time.time()
+elapsed = end - start
+time_sec = round(elapsed, 2)
+time_min = round((elapsed / 60), 2)
+
+if elapsed < 60:
+    print("This solution took " + str(time_sec) + " seconds.\n")
+else:
+    print("This solution took " + str(time_min) + " minutes.\n")

@@ -59,18 +59,26 @@ When you run `cryptosolver.py`, it will return the scrambled letters in the mess
 
 ```
 $ python3 cryptosolver.py RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+
 A C D E J L Q R T V W X Y
 X A H S M C _ T L _ I E N
+
  RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
  THIS SENTENCE IS EXISTENTIAL AN_ N_T SENTIMENTAL
+
+This solution took 0.19 seconds.
 ```
 
 Here is an example with hints provided.
 
 ```
 $ python3 cryptosolver.py -c QD,VO RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+
 A C D E J L Q R T V W X Y
 X A H S M C D T L O I E N
+
  RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
  THIS SENTENCE IS EXISTENTIAL AND NOT SENTIMENTAL
+
+ This solution took 0.19 seconds.
 ```
