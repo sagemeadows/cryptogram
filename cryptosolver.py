@@ -135,8 +135,8 @@ start = time.time()
 # extract the scrambled words from the command-line arguments
 scrambled_words = args
 ## HACK: hard code the input for easy testing
-# SENT CENT COST SCENTS SENTIENT SENTENCE
-# UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA
+## SENT CENT COST SCENTS SENTIENT SENTENCE
+## UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA
 #scrambled_words = "UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA".split()
 
 # build lists of unique:
@@ -194,7 +194,7 @@ while True:
                     candidates_by_fingerprint[fingerprint].append(word)
 file_handle.close()
 
-# DEBUG: print the number of candidates for each fingerprint
+# calculate fingerprints and candidates
 candidates_per_scrambled_word = []
 
 for word in unique_scrambled_words:
@@ -202,6 +202,7 @@ for word in unique_scrambled_words:
     candidates = candidates_by_fingerprint[fingerprint]
     candidates_number_tuple = (len(candidates), word)
     candidates_per_scrambled_word.append(candidates_number_tuple)
+    ## DEBUG: print the number of candidates for each scrambled word
     #print("DEBUG '{}' has {} candidates".format(word, len(candidates)))
 
 # for each (scramble, candidate) pair: generate the partial solution
@@ -224,7 +225,7 @@ for word in unique_scrambled_words:
 
 # sort tuples by number of candidates
 candidates_per_scrambled_word = sorted(candidates_per_scrambled_word, key=lambda scrambled_word: scrambled_word[0])
-# DEBUG: show sorting worked
+## DEBUG: show sorting worked
 #print(candidates_per_scrambled_word)
 
 # create list of sorted unique scrambled words
@@ -249,8 +250,8 @@ else:
     final_solutions = solutions[unique_scrambled_words[0]]
     first_i = 1
 
-# DEBUG: count number of possibilities for each word
-# and show time it takes to find possible solutions
+## DEBUG: count number of possibilities for each word
+## and show time it takes to find possible solutions
 #elapsed = round(time.time() - start, 3)
 #print("DEBUG 0 t={} len(possible_solutions)={}".format(elapsed, len(final_solutions)))
 
