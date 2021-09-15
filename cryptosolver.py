@@ -133,7 +133,10 @@ if options.solution_constraint:
 start = time.time()
 
 # extract the scrambled words from the command-line arguments
-scrambled_words = args
+#scrambled_words = args
+# from this hour forth sentient sentence foosball billiards
+# IWXG QNRM NXFW IXWQN MHCQRHCQ MHCQHCKH IXXMUJBB URBBRJWYM
+scrambled_words = "IWXG QNRM NXFW IXWQN MHCQRHCQ MHCQHCKH IXXMUJBB URBBRJWYM".split()
 
 # build lists of unique:
 #   scrambled words
@@ -182,7 +185,7 @@ while True:
     for word in words:
         # skip words whose lengths don't match
         if len(word) in lengths:
-            # only keep wordS with matching fingerprints
+            # only keep words with matching fingerprints
             fingerprint = compute_fingerprint(word)
             if fingerprint in fingerprints:
                 # avoid duplicate wordS
@@ -190,6 +193,11 @@ while True:
                     candidates_by_fingerprint[fingerprint].append(word)
 file_handle.close()
 
+# DEBUG: print the number of candidates for each fingerprint
+for word in unique_scrambled_words:
+    fingerprint = compute_fingerprint(word)
+    candidates = candidates_by_fingerprint[fingerprint]
+    print("DEBUG '{}' has {} candidates".format(word, len(candidates)))
 
 # for each (scramble, candidate) pair: generate the partial solution
 # which is a dictionary of (key,value) pairs (e.g. char --> char)
@@ -206,6 +214,7 @@ for word in unique_scrambled_words:
         if len(solution) > 0:
             # only non-empty solutions are allowed
             solutions[word].append(solution)
+print("DEBUG done generating all candidate partial solutions")
 
 # now that we have all possible partial solutions...
 # join each one to all the others and discard conflicts
@@ -226,6 +235,9 @@ else:
     final_solutions = solutions[unique_scrambled_words[0]]
     first_i = 1
 
+elapsed = round(time.time() - start, 3)
+print("DEBUG 0 t={} len(possible_solutions)={}".format(elapsed, len(final_solutions)))
+
 for i in range(first_i, len(unique_scrambled_words)):
     key = unique_scrambled_words[i]
     new_solutions = []
@@ -240,6 +252,8 @@ for i in range(first_i, len(unique_scrambled_words)):
                 new_solutions.append(new_solution)
 
     final_solutions = new_solutions
+    elapsed = round(time.time() - start, 3)
+    print("DEBUG {} t={} len(possible_solutions)={}".format(i, elapsed, len(final_solutions)))
 
 if len(final_solutions) == 0:
     print("could not find solution")
