@@ -132,11 +132,13 @@ if options.solution_constraint:
 # start timer
 start = time.time()
 
-# extract the scrambled words from the command-line arguments
+# HACK: hard code the input for easy testing
+## extract the scrambled words from the command-line arguments
 #scrambled_words = args
-# from this hour forth sentient sentence foosball billiards
-# IWXG QNRM NXFW IXWQN MHCQRHCQ MHCQHCKH IXXMUJBB URBBRJWYM
-scrambled_words = "IWXG QNRM NXFW IXWQN MHCQRHCQ MHCQHCKH IXXMUJBB URBBRJWYM".split()
+#
+# SENT CENT COST SCENTS SENTIENT SENTENCE
+# UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA
+scrambled_words = "UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA".split()
 
 # build lists of unique:
 #   scrambled words
@@ -215,6 +217,13 @@ for word in unique_scrambled_words:
             # only non-empty solutions are allowed
             solutions[word].append(solution)
 print("DEBUG done generating all candidate partial solutions")
+
+# TODO: right here we want to sort unique_scrambled_words by number of candidates,
+# low to high.  This will allow us to prune the number of possible branches early.
+# In other words, we want to make a new array called "sorted_unique_scrambled_words"
+# which is just unique_scrambled_words but sorted by number of candidates.  Then
+# change the for logic below to walk through sorted_unique_scrambled_words.
+
 
 # now that we have all possible partial solutions...
 # join each one to all the others and discard conflicts
