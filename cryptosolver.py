@@ -132,13 +132,12 @@ if options.solution_constraint:
 # start timer
 start = time.time()
 
-# HACK: hard code the input for easy testing
-## extract the scrambled words from the command-line arguments
-#scrambled_words = args
-#
+# extract the scrambled words from the command-line arguments
+scrambled_words = args
+## HACK: hard code the input for easy testing
 # SENT CENT COST SCENTS SENTIENT SENTENCE
 # UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA
-scrambled_words = "UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA".split()
+#scrambled_words = "UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA".split()
 
 # build lists of unique:
 #   scrambled words
@@ -196,10 +195,14 @@ while True:
 file_handle.close()
 
 # DEBUG: print the number of candidates for each fingerprint
+candidates_per_scrambled_word = []
+
 for word in unique_scrambled_words:
     fingerprint = compute_fingerprint(word)
     candidates = candidates_by_fingerprint[fingerprint]
-    print("DEBUG '{}' has {} candidates".format(word, len(candidates)))
+    candidates_number_tuple = (len(candidates), word)
+    candidates_per_scrambled_word.append(candidates_number_tuple)
+    #print("DEBUG '{}' has {} candidates".format(word, len(candidates)))
 
 # for each (scramble, candidate) pair: generate the partial solution
 # which is a dictionary of (key,value) pairs (e.g. char --> char)
@@ -216,13 +219,19 @@ for word in unique_scrambled_words:
         if len(solution) > 0:
             # only non-empty solutions are allowed
             solutions[word].append(solution)
-print("DEBUG done generating all candidate partial solutions")
+#print("DEBUG done generating all candidate partial solutions")
 
-# TODO: right here we want to sort unique_scrambled_words by number of candidates,
-# low to high.  This will allow us to prune the number of possible branches early.
-# In other words, we want to make a new array called "sorted_unique_scrambled_words"
-# which is just unique_scrambled_words but sorted by number of candidates.  Then
-# change the for logic below to walk through sorted_unique_scrambled_words.
+
+# sort tuples by number of candidates
+candidates_per_scrambled_word = sorted(candidates_per_scrambled_word, key=lambda scrambled_word: scrambled_word[0])
+# DEBUG: show sorting worked
+#print(candidates_per_scrambled_word)
+
+# create list of sorted unique scrambled words
+sorted_unique_scrambled_words = []
+
+for i in range(len(candidates_per_scrambled_word)):
+    sorted_unique_scrambled_words.append(candidates_per_scrambled_word[i][1])
 
 
 # now that we have all possible partial solutions...
@@ -233,10 +242,6 @@ print("DEBUG done generating all candidate partial solutions")
 # If we have a constraint then we add that
 # else we add all possibilities for the first scrambled word
 #
-# TODO: to speed up the solution search we should first
-# sort the solutions array by number of possibilities
-# and start with the most constrained sets
-#
 first_i = 0
 if constraint:
     final_solutions = [constraint]
@@ -244,11 +249,13 @@ else:
     final_solutions = solutions[unique_scrambled_words[0]]
     first_i = 1
 
-elapsed = round(time.time() - start, 3)
-print("DEBUG 0 t={} len(possible_solutions)={}".format(elapsed, len(final_solutions)))
+# DEBUG: count number of possibilities for each word
+# and show time it takes to find possible solutions
+#elapsed = round(time.time() - start, 3)
+#print("DEBUG 0 t={} len(possible_solutions)={}".format(elapsed, len(final_solutions)))
 
-for i in range(first_i, len(unique_scrambled_words)):
-    key = unique_scrambled_words[i]
+for i in range(first_i, len(sorted_unique_scrambled_words)):
+    key = sorted_unique_scrambled_words[i]
     new_solutions = []
 
     for j in range(len(solutions[key])):
@@ -261,8 +268,8 @@ for i in range(first_i, len(unique_scrambled_words)):
                 new_solutions.append(new_solution)
 
     final_solutions = new_solutions
-    elapsed = round(time.time() - start, 3)
-    print("DEBUG {} t={} len(possible_solutions)={}".format(i, elapsed, len(final_solutions)))
+    #elapsed = round(time.time() - start, 3)
+    #print("DEBUG {} t={} len(possible_solutions)={}".format(i, elapsed, len(final_solutions)))
 
 if len(final_solutions) == 0:
     print("could not find solution")
