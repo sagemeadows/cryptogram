@@ -8,8 +8,12 @@ Cryptograms are usually fairly long—at least one sentence, often more—so the
 1. Download `cryptomaker.py`
 2. Go to your command line
 3. Change directories to wherever you put the downloaded file
-4. Run program with `python3 cryptomaker.py [message to encode]`
+4. Run script with `python3 cryptomaker.py [message to encode]`
 5. Copy and paste the output to wherever you want it
+
+**WARNING!**
+\
+`cryptomaker.py` does not preserve apostrophes or quotation marks, and does not work at all if there is an odd number of apostrophes and quotation marks in the message. Remove `'` and `"` prior to running script.
 
 When you run `cryptomaker.py`, it will return a code, your original message, and the encoded message.
 
@@ -33,46 +37,32 @@ Finished!
 1. Download `cryptosolver.py`
 2. Go to your command line
 3. Change directories to wherever you put the downloaded file
-4. Run program...
+4. Run script...
     - If no letter mappings are known: `python3 cryptomaker.py [cryptogram to decode]`
     - If one letter mapping is known, e.g. A-->B: `python3 cryptomaker.py -c AB [cryptogram to decode]`
-    - If two or more letter mappings are known, e.g. A-->B and C-->D: `python3 cryptomaker.py -c AB,CD [cryptogram to decode]`
+    - If two or more letter mappings are known, e.g. A-->B and C-->D: `python3 cryptomaker.py -c AB,CD,... [cryptogram to decode]`
 
-**WARNING! Cryptograms with many possible solutions will take a long time to complete and may slow down your computer.**
-
+**WARNING! Cryptograms with very many possible solutions will take a long time to complete and may slow down your computer.**
+\
 The best cryptograms for this decoder have:
 - lots of hints
 - 1-letter and/or 2-letter words
     - e.g. *I*, *a*, *it*, *of*, *as*, etc.
-- long words with repeating letters
-    - e.g. *hopelessness*
+- long words
+    - e.g. *independence*
 - multiple words with overlapping letters
     - e.g. *This sentence is existential and not sentimental*
 
 **WARNING! This decoder cannot handle word-external punctuation.**
+\
+Before running `cryptosolver.py`, remove all punctuation.
 
-Before running `cryptosolver.py`, remove all punctuation except for `'`.
-- Good punctuation: `'`
-- Bad punctuation: `. , ! ? @ # $ % ^ & * ( ) - _ + = /`
-
-When you run `cryptosolver.py`, it will return the scrambled letters in the message mapped to their unscrambled counterparts. If there are multiple solutions for a letter, it will return _ for that letter.
+When you run `cryptosolver.py`, it will return every possible solution with the scrambled letters in the message mapped to their unscrambled counterparts.
 
 ```
 $ python3 cryptosolver.py RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
 
-A C D E J L Q R T V W X Y
-X A H S M C _ T L _ I E N
-
- RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
- THIS SENTENCE IS EXISTENTIAL AN_ N_T SENTIMENTAL
-
-This solution took 0.19 seconds.
-```
-
-Here is an example with hints provided.
-
-```
-$ python3 cryptosolver.py -c QD,VO RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+Solution 1, t=0.179
 
 A C D E J L Q R T V W X Y
 X A H S M C D T L O I E N
@@ -80,5 +70,50 @@ X A H S M C D T L O I E N
  RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
  THIS SENTENCE IS EXISTENTIAL AND NOT SENTIMENTAL
 
-This solution took 0.19 seconds.
+
+Solution 2, t=0.182
+
+A C D E J L Q R T V W X Y
+X A H S M C D T L U I E N
+
+ RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+ THIS SENTENCE IS EXISTENTIAL AND NUT SENTIMENTAL
+
+
+Solution 3, t=0.186
+
+A C D E J L Q R T V W X Y
+X A H S M C Y T L O I E N
+
+ RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+ THIS SENTENCE IS EXISTENTIAL ANY NOT SENTIMENTAL
+
+
+Solution 4, t=0.189
+
+A C D E J L Q R T V W X Y
+X A H S M C Y T L U I E N
+
+ RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+ THIS SENTENCE IS EXISTENTIAL ANY NUT SENTIMENTAL
+
+
+All solutions found!
+```
+
+Here is an example with hints provided.
+
+```
+$ python3 cryptosolver.py -c QD,VO RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+
+Solution 1, t=0.18
+
+A C D E J L Q R T V W X Y
+X A H S M C D T L O I E N
+
+ RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+ THIS SENTENCE IS EXISTENTIAL AND NOT SENTIMENTAL
+
+
+All solutions found!
 ```
