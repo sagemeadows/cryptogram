@@ -117,7 +117,6 @@ def parse_constraint_input(constraint_string):
                 known_keys.append(key)
     return solution
 
-
 # parse the options
 parser = optparse.OptionParser()
 parser.add_option("-c", "--constraint", dest="solution_constraint",
@@ -134,10 +133,37 @@ start = time.time()
 
 # extract the scrambled words from the command-line arguments
 scrambled_words = args
-## HACK: hard code the input for easy testing
-## SENT CENT COST SCENTS SENTIENT SENTENCE
-## UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA
+
+## DEBUG HACK: hard code the input for easy testing
+#print("SENT CENT COST SCENTS SENTIENT SENTENCE")
+#print("UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA")
 #scrambled_words = "UAQJ GAQJ GLUJ UGAQJU UAQJVAQJ UAQJAQGA".split()
+
+# bail if we have no input
+if len(scrambled_words) == 0:
+    # TODO: print usage info here
+    sys.exit(0)
+
+solution_counter = 0
+scrambled_sentence = " ".join(scrambled_words).upper()
+
+def print_solution(solution):
+    global solution_counter
+    global scrambled_sentence;
+    solution_counter = solution_counter + 1
+    elapsed = round(time.time() - start, 3)
+    print("")
+    print("Solution {}, t={}".format(solution_counter, elapsed))
+    print("")
+    sorted_solution = collections.OrderedDict(sorted(solution.items()))
+    print(" ".join(sorted_solution.keys()))
+    print(" ".join(sorted_solution.values()))
+    # print the scrambled input and the solved output
+    print("")
+    sentence = apply_solution(solution, scrambled_sentence)
+    print(" ", scrambled_sentence)
+    print(" ", sentence)
+    print("")
 
 # build lists of unique:
 #   scrambled words
@@ -172,7 +198,6 @@ for fingerprint in fingerprints:
     # create an empty array for each fingerprint
     candidates_by_fingerprint[fingerprint] = []
 
-
 # read each line in words file and sort each candidate word
 # by fingerprint into its respective array
 num_lines = 0
@@ -195,111 +220,77 @@ while True:
                     candidates_by_fingerprint[fingerprint].append(word)
 file_handle.close()
 
-# calculate fingerprints and candidates
-candidates_per_scrambled_word = []
-
+# sort scrambled_words by number of candidates
+# by building tuples: [scrambled_word, number_of_candidates]
+# and sorting by second field
+sortable_tuples = []
 for word in unique_scrambled_words:
     fingerprint = compute_fingerprint(word)
     candidates = candidates_by_fingerprint[fingerprint]
-    candidates_tuple = (word, fingerprint, len(candidates))
-    candidates_per_scrambled_word.append(candidates_tuple)
+    this_tuple = (word, candidates)
+    sortable_tuples.append(this_tuple)
     ## DEBUG: print the number of candidates for each scrambled word
     #print("DEBUG '{}' has {} candidates".format(word, len(candidates)))
     if len(candidates) == 0:
         print("\nERROR: Could not find solution for {}\n".format(word))
         sys.exit()
+sorted_tuples = sorted(sortable_tuples, key=lambda entry: len(entry[1]))
 
-## DEBUG: count number of possibilities for each word
-## and show time it takes to find possible solutions
-#elapsed = round(time.time() - start, 3)
-#print("DEBUG 0 t={} len(possible_solutions)={}".format(elapsed, len(final_solutions)))
-
-# sort tuples by number of candidates
-candidates_per_scrambled_word = sorted(candidates_per_scrambled_word, key=lambda scrambled_word: scrambled_word[2])
 ## DEBUG: show sorting worked
-#print(candidates_per_scrambled_word)
+#for t in sorted_tuples:
+#    print("word={} num_candidates={}".format(t[0], len(t[1])))
 
-# create list of sorted unique scrambled words
-# and list of sorted fingerprints
-sorted_unique_scrambled_words = []
-sorted_list_of_fingerprints = []
-
-for i in range(len(candidates_per_scrambled_word)):
-    sorted_unique_scrambled_words.append(candidates_per_scrambled_word[i][0])
-
-for i in range(len(candidates_per_scrambled_word)):
-    sorted_list_of_fingerprints.append(candidates_per_scrambled_word[i][1])
-
-#
-# now that the scrambled words and their fingerprints are sorted
-# by number of possible candidates,
-# starting with the shortest list of candidates for a word,
-# check each candidate for whether it contradicts prior constraints
-# and if it doesn't, move on to the candidates for the next word
-# and if you reach the end of the lists of candidates,
-# print the solution
-#
+# now that the tuples are sorted by number of possible candidates,
+# we will hunt for viable solutions column by column:
+# We'll start with the first column and check candidates until we find one
+# that does not violate our constraint.  From there we'll move to the top
+# of the next column and do the same thing, building a more complete partial
+# solution as we add compatible words and moving to subsequent columns.
+# When we find a valid word in ALL columns we'll print the solution and
+# continue walking the last column.
+# When we reach the end of any column we'll back up to the previous column
+# and pick up where we left off.
 
 # create starting partial solution and column indices
-partial_solution = constraint.copy()
-column_indices = [0] * len(sorted_unique_scrambled_words)
-
+num_columns = len(sorted_tuples)
+candidate_indices = [0] * num_columns # where we are in each column of candidates
+partial_solutions = [{}] * num_columns # partial solutions at the start of each column
+partial_solutions[0] = constraint
 column_index = 0
 
-def find_solution(column_index, current_solution):
-    ci = column_index
-    current_fingerprint = sorted_list_of_fingerprints[ci]
-    current_scrambled_word = sorted_unique_scrambled_words[ci]
-    for i in range(len(candidates_by_fingerprint[sorted_list_of_fingerprints[ci]])):
-        column_indices[ci] = i
-        current_candidate = candidates_by_fingerprint[current_fingerprint][i]
-        check(current_scrambled_word, current_candidate, current_solution, ci)
+while True:
+    scrambled_word = sorted_tuples[column_index][0]
+    candidates = sorted_tuples[column_index][1]
+    candidate_index = candidate_indices[column_index]
+    num_candidates = len(candidates)
+    partial_solution = partial_solutions[column_index]
+    while candidate_index < num_candidates:
+        word = candidates[candidate_index]
+        candidate_solution = compute_partial_solution(scrambled_word, word)
+        if len(candidate_solution) > 0:
+            joined_solution = join_solutions(partial_solution, candidate_solution)
+            if len(joined_solution) > 0:
+                # we've found a non-conflicting word
+                if column_index == num_columns - 1:
+                    # we're walking the last column and our solution is complete
+                    print_solution(joined_solution)
+                else:
+                    # remember our place and proceed to the next column of candidates
+                    candidate_indices[column_index] = candidate_index
+                    column_index += 1
+                    partial_solutions[column_index] = joined_solution
+                    candidate_indices[column_index] = 0
+                    break
+        candidate_index += 1
 
+    if candidate_index == num_candidates:
+        # we've reached the end of this column so we back up
+        # to the previous and pick up where we left off
+        column_index -= 1
+        if column_index < 0:
+            # we've searched everything
+            break;
+        candidate_indices[column_index] += 1
 
-def check(current_scrambled_word, current_candidate, current_solution, column_index):
-    new_solution = {}
-    for i in range(len(current_scrambled_word)):
-        new_solution[current_scrambled_word[i]] = current_candidate[i]
-    joined_solution = join_solutions(current_solution, new_solution)
-    if len(joined_solution) > 0:
-        if column_index == len(column_indices) - 1:
-            print_solution(joined_solution)
-        else:
-            find_solution(column_index+1, joined_solution)
-
-print_counter = 0
-scrambled_sentence = " ".join(scrambled_words).upper()
-
-def print_solution(solution):
-    global print_counter
-    print_counter = print_counter + 1
-    elapsed = round(time.time() - start, 3)
-    print("")
-    print("Solution {}, t={}".format(print_counter, elapsed))
-    print("")
-    sorted_solution = collections.OrderedDict(sorted(solution.items()))
-    print(" ".join(sorted_solution.keys()))
-    print(" ".join(sorted_solution.values()))
-    # print the scrambled input and the solved output
-    print("")
-    sentence = apply_solution(solution, scrambled_sentence)
-    print(" {}".format(scrambled_sentence))
-    print(" {}".format(sentence))
-    print("")
-
-
-## end timer
-#end = time.time()
-#elapsed = end - start
-#time_sec = round(elapsed, 2)
-#time_min = round((elapsed / 60), 2)
-
-#if elapsed < 60:
-    #print("This solution took " + str(time_sec) + " seconds.\n")
-#else:
-    #print("This solution took " + str(time_min) + " minutes.\n")
-
-find_solution(0, partial_solution)
-
-print("\nAll solutions found!\n")
+print("All solutions found!\n")
 
