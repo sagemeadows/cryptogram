@@ -12,6 +12,7 @@ import collections
 import optparse
 import sys
 import time
+import string
 
 def parse_constraint_input(constraint_string):
     # give a constraint string of comma-separated KeyValue characters: "AB,CD,EF"
@@ -112,12 +113,13 @@ def compute_partial_solution(A, B):
     for i in range(0, len(A)):
         a = A[i]
         b = B[i]
-        if a == b:
-            # characters that map to themselves invalidate the solution
-            # so we return an empty dictionary
-            solution = {}
-            break
-        solution[a] = b
+        if a != chr(39):
+            if a == b:
+                # characters that map to themselves invalidate the solution
+                # so we return an empty dictionary
+                solution = {}
+                break
+            solution[a] = b
     return solution
 
 
@@ -179,7 +181,21 @@ if options.solution_constraint:
 start = time.time()
 
 # extract the scrambled words from the command-line arguments
-scrambled_words = args
+scrambled_input = args
+scrambled_words = scrambled_input.copy()
+safe_characters = []
+safe_characters.append(chr(39))
+for char in string.ascii_uppercase:
+    safe_characters.append(char)
+for char in string.ascii_lowercase:
+    safe_characters.append(char)
+
+for i in range(len(scrambled_words)):
+    for char in scrambled_words[i]:
+        if char not in safe_characters:
+            scrambled_words[i] = scrambled_words[i].replace(char, "")
+## DEBUG: show removal of word-external punctuation
+#print(scrambled_words)
 
 ## DEBUG HACK: hard code the input for easy testing
 #print("SENT CENT COST SCENTS SENTIENT SENTENCE")
@@ -192,7 +208,9 @@ if len(scrambled_words) == 0:
     sys.exit(0)
 
 solution_counter = 0
-scrambled_sentence = " ".join(scrambled_words).upper()
+scrambled_sentence = " ".join(scrambled_input).upper()
+## DEBUG
+#print(scrambled_sentence + "\n")
 
 def print_solution(solution):
     global solution_counter
