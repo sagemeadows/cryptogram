@@ -13,22 +13,22 @@ Cryptograms are usually fairly long—at least one sentence, often more—so the
 
 **WARNING!**
 \
-`cryptomaker.py` does not preserve apostrophes or quotation marks, and does not work at all if there is an odd number of apostrophes and quotation marks in the message. Remove `'` and `"` prior to running script.
+`cryptomaker.py` does not automatically preserve apostrophes or quotation marks inside the message to be encoded. If you want an apostrophe or quotation mark in the message, put a backslash `\` before `'` or `"`.
 
 When you run `cryptomaker.py`, it will return a code, your original message, and the encoded message.
 
 ```
-$ python3 cryptomaker.py The quick red fox jumps over the lazy brown dog.
+$ python3 cryptomaker.py My best friend\'s other friend\'s cousin\'s teacher\'s substitute said, \"Don\'t make your sentences too confusing.\"
 
 Your cryptogram code is:
 A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
-N  H  X  Q  I  Z  O  G  P  L  U  V  D  T  Y  W  K  S  C  J  A  M  F  E  R  B
+Y  C  Z  J  F  P  I  U  N  Q  X  W  H  S  M  T  L  A  D  O  G  K  B  R  V  E
 
 Your original message was:
-The quick red fox jumps over the lazy brown dog.
+My best friend's other friend's cousin's teacher's substitute said, "Don't make your sentences too confusing."
 
 Your new message is:
-JGI KAPXU SIQ ZYE LADWC YMIS JGI VNBR HSYFT QYO.
+HV CFDO PANFSJ'D MOUFA PANFSJ'D ZMGDNS'D OFYZUFA'D DGCDONOGOF DYNJ, "JMS'O HYXF VMGA DFSOFSZFD OMM ZMSPGDNSI."
 
 Finished!
 ```
@@ -55,48 +55,47 @@ The best cryptograms for this decoder have:
 
 **WARNING! This decoder cannot handle word-external punctuation.**
 \
-Before running `cryptosolver.py`, remove all punctuation.
+Before running `cryptosolver.py`, remove all word-external punctuation. If you have an apostrophe in a scrambled word, put `\` before the `'`.
 
 When you run `cryptosolver.py`, it will return every possible solution with the scrambled letters in the message mapped to their unscrambled counterparts.
 
 ```
-$ python3 cryptosolver.py RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+$ python3 cryptosolver.py CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
 
-Solution 1, t=0.179
+Solution 1, t=2.046
 
-A C D E J L Q R T V W X Y
-X A H S M C D T L O I E N
+A C E G H K O Q S U V X Z
+C T S N G O A R E I Y H M
 
- RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
- THIS SENTENCE IS EXISTENTIAL AND NOT SENTIMENTAL
-
-
-Solution 2, t=0.182
-
-A C D E J L Q R T V W X Y
-X A H S M C D T L U I E N
-
- RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
- THIS SENTENCE IS EXISTENTIAL AND NUT SENTIMENTAL
+  CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
+  THE THREE AMIGOS SCENT THEIR MONEY
 
 
-Solution 3, t=0.186
+Solution 2, t=2.164
 
-A C D E J L Q R T V W X Y
-X A H S M C Y T L O I E N
+A C E G H K O Q S U V X Z
+L T S P G O A R E I D H M
 
- RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
- THIS SENTENCE IS EXISTENTIAL ANY NOT SENTIMENTAL
+  CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
+  THE THREE AMIGOS SLEPT THEIR MOPED
 
 
-Solution 4, t=0.189
+Solution 3, t=2.445
 
-A C D E J L Q R T V W X Y
-X A H S M C Y T L U I E N
+A C E G H K O Q S U V X Z
+P T S N G O A R E I Y H M
 
- RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
- THIS SENTENCE IS EXISTENTIAL ANY NUT SENTIMENTAL
+  CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
+  THE THREE AMIGOS SPENT THEIR MONEY
 
+
+Solution 4, t=2.577
+
+A C E G H K O Q S U V X Z
+W T S P G O A R E I D H M
+
+  CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
+  THE THREE AMIGOS SWEPT THEIR MOPED
 
 All solutions found!
 ```
@@ -104,16 +103,44 @@ All solutions found!
 Here is an example with hints provided.
 
 ```
-$ python3 cryptosolver.py -c QD,VO RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
+$ python3 cryptosolver.py CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV -c CT,XH,ES
 
-Solution 1, t=0.18
+Solution 1, t=0.119
 
-A C D E J L Q R T V W X Y
-X A H S M C D T L O I E N
+A C E G H K O Q S U V X Z
+C T S N G O A R E I Y H M
 
- RDWE EXYRXYLX WE XAWERXYRWCT CYQ YVR EXYRWJXYRCT
- THIS SENTENCE IS EXISTENTIAL AND NOT SENTIMENTAL
+  CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
+  THE THREE AMIGOS SCENT THEIR MONEY
 
+
+Solution 2, t=0.132
+
+A C E G H K O Q S U V X Z
+L T S P G O A R E I D H M
+
+  CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
+  THE THREE AMIGOS SLEPT THEIR MOPED
+
+
+Solution 3, t=0.158
+
+A C E G H K O Q S U V X Z
+P T S N G O A R E I Y H M
+
+  CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
+  THE THREE AMIGOS SPENT THEIR MONEY
+
+
+Solution 4, t=0.194
+
+A C E G H K O Q S U V X Z
+W T S P G O A R E I D H M
+
+  CXS CXQSS OZUHKE EASGC CXSUQ ZKGSV
+  THE THREE AMIGOS SWEPT THEIR MOPED
 
 All solutions found!
 ```
+
+Notice that providing a constraint makes the solver significantly faster.
