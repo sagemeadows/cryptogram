@@ -13,23 +13,78 @@ import optparse
 import sys
 import time
 
+def parse_constraint_input(constraint_string):
+    # give a constraint string of comma-separated KeyValue characters: "AB,CD,EF"
+    # generate a partial solution dictionary: { A:B, C:D, E:F }
+    solution = {}
+    pairs = constraint_string.upper().split(",")
+    known_keys = []
+    for pair in pairs:
+        if len(pair) == 2:
+            key = pair[0]
+            value = pair[1]
+            if key not in known_keys:
+                solution[key] = value
+                known_keys.append(key)
+    return solution
+
+def parse_known_values(constraint_string):
+    # give a constraint string of comma-separated KeyValue characters: "AB,CD,EF"
+    # generate a list of known values: [ B, D, F ]
+    pairs = constraint_string.upper().split(",")
+    known_values = []
+    for pair in pairs:
+        if len(pair) == 2:
+            key = pair[0]
+            value = pair[1]
+            if value not in known_values:
+                known_values.append(value)
+    return known_values
+
 def compute_fingerprint(word):
     # Given a 'word': compute a canonical "fingerprint" of the characters within
-    # where each character is assigned a letter of the alphabet representing its
-    # sequence of "first occurrence".
+    # where each unknown character is assigned a lowercase letter of the alphabet 
+    # representing its sequence of "first occurrence", and
+    # each known character is assigned its value in uppercase.
     #
     # For example: consider the word 'FALLOW'
     #
-    # 'F' shows up first and is assigned 'A'
-    # 'A' shows up second and is assigned 'B'
-    # 'L' shows up third and is assigned 'C'
+    # 'F' shows up first and is assigned 'a'
+    # 'A' shows up second and is assigned 'b'
+    # 'L' shows up third and is assigned 'c'
     # ... and so on D, E, F...
     #
-    # Its fingerprint would be 'ABCCDE'
+    # Its fingerprint would be 'abccde'
     #
-    # The word 'FELLOW' would have the same fingerprint 'ABCCDE'
-    # however 'FOLLOW' would be different: 'ABCCBD'
+    # The word 'FELLOW' would have the same fingerprint 'abccde'
+    # however 'FOLLOW' would be different: 'abccbd'
     #
+    # For a scrambled word BPKKYU if we knew that K:A,
+    # its fingerprint would be 'abLLcd'
+    #
+    assignments = constraint.copy()
+    fp = ""
+    char_index = 0
+    for char in word.upper():
+        if (char >= 'A' and char <= 'Z'):
+            if char in assignments:
+                fp += assignments[char]
+            else:
+                letter = chr(ord('a') + char_index)
+                assignments[char] = letter
+                fp += letter
+                char_index += 1
+        else:
+            fp += char
+    return fp
+
+def compute_candidate_fingerprint(word):
+    # Given a word: compute a canonical "fingerprint" of the characters within
+    # where each unknown character is assigned a lowercase letter of the alphabet 
+    # representing its sequence of "first occurrence", and
+    # each known character is assigned its own value in uppercase.
+    #
+    #known_values = known_values
     assignments = {}
     fp = ""
     char_index = 0
@@ -38,14 +93,17 @@ def compute_fingerprint(word):
             if char in assignments:
                 fp += assignments[char]
             else:
-                letter = chr(ord('A') + char_index)
-                assignments[char] = letter
-                fp += letter
-                char_index += 1
+                if char in known_values:
+                    assignments[char] = char
+                    fp += char
+                else:
+                    letter = chr(ord('a') + char_index)
+                    assignments[char] = letter
+                    fp += letter
+                    char_index += 1
         else:
             fp += char
     return fp
-
 
 def compute_partial_solution(A, B):
     # given two arguments of equal length and same fingerprint:
@@ -102,21 +160,6 @@ def apply_solution(solution, A):
     return B
 
 
-def parse_constraint_input(constraint_string):
-    # give a constraint string of comma-separated KeyValue characters: "AB,CD,EF"
-    # generate a partial solution dictionary: { A:B, C:D, E:F }
-    solution = {}
-    pairs = constraint_string.upper().split(",")
-    known_keys = []
-    for pair in pairs:
-        if len(pair) == 2:
-            key = pair[0]
-            value = pair[1]
-            if key not in known_keys:
-                solution[key] = value
-                known_keys.append(key)
-    return solution
-
 # parse the options
 parser = optparse.OptionParser()
 parser.add_option("-c", "--constraint", dest="solution_constraint",
@@ -125,8 +168,12 @@ parser.add_option("-c", "--constraint", dest="solution_constraint",
 
 # compute the constraint (if any)
 constraint = {}
+known_values = []
 if options.solution_constraint:
     constraint = parse_constraint_input(options.solution_constraint)
+    known_values = parse_known_values(options.solution_constraint)
+    # DEBUG
+    print("DEBUG: The known values are " + str(known_values))
 
 # start timer
 start = time.time()
@@ -213,7 +260,7 @@ while True:
         # skip words whose lengths don't match
         if len(word) in lengths:
             # only keep words with matching fingerprints
-            fingerprint = compute_fingerprint(word)
+            fingerprint = compute_candidate_fingerprint(word)
             if fingerprint in fingerprints:
                 # avoid duplicate wordS
                 if word not in candidates_by_fingerprint[fingerprint]:
@@ -229,8 +276,8 @@ for word in unique_scrambled_words:
     candidates = candidates_by_fingerprint[fingerprint]
     this_tuple = (word, candidates)
     sortable_tuples.append(this_tuple)
-    ## DEBUG: print the number of candidates for each scrambled word
-    #print("DEBUG '{}' has {} candidates".format(word, len(candidates)))
+    # DEBUG: print the number of candidates for each scrambled word
+    print("DEBUG '{}' has {} candidates that match '{}'".format(word, len(candidates), fingerprint))
     if len(candidates) == 0:
         print("\nERROR: Could not find solution for {}\n".format(word))
         sys.exit()
