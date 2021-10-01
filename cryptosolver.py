@@ -172,8 +172,8 @@ known_values = []
 if options.solution_constraint:
     constraint = parse_constraint_input(options.solution_constraint)
     known_values = parse_known_values(options.solution_constraint)
-    # DEBUG
-    print("DEBUG: The known values are " + str(known_values))
+    ## DEBUG
+    #print("DEBUG: The known values are " + str(known_values))
 
 # start timer
 start = time.time()
@@ -276,8 +276,8 @@ for word in unique_scrambled_words:
     candidates = candidates_by_fingerprint[fingerprint]
     this_tuple = (word, candidates)
     sortable_tuples.append(this_tuple)
-    # DEBUG: print the number of candidates for each scrambled word
-    print("DEBUG '{}' has {} candidates that match '{}'".format(word, len(candidates), fingerprint))
+    ## DEBUG: print the number of candidates for each scrambled word
+    #print("DEBUG '{}' has {} candidates that match '{}'".format(word, len(candidates), fingerprint))
     if len(candidates) == 0:
         print("\nERROR: Could not find solution for {}\n".format(word))
         sys.exit()
