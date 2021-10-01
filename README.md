@@ -25,10 +25,10 @@ A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
 Y  C  Z  J  F  P  I  U  N  Q  X  W  H  S  M  T  L  A  D  O  G  K  B  R  V  E
 
 Your original message was:
-My best friend's other friend's cousin's teacher's substitute said, "Don't make your sentences too confusing."
+My best friend's other friend's cousin's teacher's substitute said, "Don't make your sentences too confusing!"
 
 Your new message is:
-HV CFDO PANFSJ'D MOUFA PANFSJ'D ZMGDNS'D OFYZUFA'D DGCDONOGOF DYNJ, "JMS'O HYXF VMGA DFSOFSZFD OMM ZMSPGDNSI."
+HV CFDO PANFSJ'D MOUFA PANFSJ'D ZMGDNS'D OFYZUFA'D DGCDONOGOF DYNJ, "JMS'O HYXF VMGA DFSOFSZFD OMM ZMSPGDNSI!"
 
 Finished!
 ```
@@ -144,3 +144,24 @@ All solutions found!
 ```
 
 Notice that providing a constraint makes the solver significantly faster.
+
+If you have punctuation in your scrambled message, be sure to put `\` before any of the following characters:
+```
+' " ` ; ! & < > ( ) |
+```
+
+Example:
+
+```
+$ python3 cryptosolver.py HV CFDO PANFSJ\'D MOUFA PANFSJ\'D ZMGDNS\'D OFYZUFA\'D DGCDONOGOF DYNJ, \"JMS\'O HYXF VMGA DFSOFSZFD OMM ZMSPGDNSI\!\" -c HM,VY,XK
+
+Solution 1, t=0.293
+
+A C D F G H I J M N O P S U V X Y Z
+R B S E U M G D O I T F N H Y K A C
+
+  HV CFDO PANFSJ'D MOUFA PANFSJ'D ZMGDNS'D OFYZUFA'D DGCDONOGOF DYNJ, "JMS'O HYXF VMGA DFSOFSZFD OMM ZMSPGDNSI!"
+  MY BEST FRIEND'S OTHER FRIEND'S COUSIN'S TEACHER'S SUBSTITUTE SAID, "DON'T MAKE YOUR SENTENCES TOO CONFUSING!"
+
+All solutions found!
+```
