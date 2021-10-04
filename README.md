@@ -53,9 +53,12 @@ The best cryptograms for this decoder have:
 - multiple words with overlapping letters
     - e.g. *This sentence is existential and not sentimental*
 
-**WARNING! This decoder cannot handle word-external punctuation.**
+**WARNING! Be careful of punctuation in cryptograms.**
 \
-Before running `cryptosolver.py`, remove all word-external punctuation. If you have an apostrophe in a scrambled word, put `\` before the `'`.
+Some punctuation symbols need to have a backslash `\` before them in order for the script to work. Put `\` before any of the following characters:
+```
+' " ` ; ! & < > ( ) |
+```
 
 When you run `cryptosolver.py`, it will return every possible solution with the scrambled letters in the message mapped to their unscrambled counterparts.
 
@@ -143,14 +146,9 @@ W T S P G O A R E I D H M
 All solutions found!
 ```
 
-Notice that providing a constraint makes the solver significantly faster.
+Providing a constraint makes the solver significantly faster.
 
-If you have punctuation in your scrambled message, be sure to put `\` before any of the following characters:
-```
-' " ` ; ! & < > ( ) |
-```
-
-Example:
+Here's an example with punctuation symbols:
 
 ```
 $ python3 cryptosolver.py HV CFDO PANFSJ\'D MOUFA PANFSJ\'D ZMGDNS\'D OFYZUFA\'D DGCDONOGOF DYNJ, \"JMS\'O HYXF VMGA DFSOFSZFD OMM ZMSPGDNSI\!\" -c HM,VY,XK
